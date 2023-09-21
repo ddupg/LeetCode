@@ -35,7 +35,7 @@ class Solution {
         return rst;
     }
 
-    private void bfs(Map<Integer, Set<Integer>> es, int[] in, Queue<Integer> q, Function<Integer, Boolean> check, IntConsumer action) {
+    private void bfs(Map<Integer, Set<Integer>> es, int[] in, Queue<Integer> q, Predicate<Integer> check, IntConsumer action) {
         while(!q.isEmpty()) {
             Integer x = q.poll();
             in[x] --;
@@ -43,33 +43,32 @@ class Solution {
             for (Integer y : nxt) {
                 in[y] --;
                 es.get(y).remove(x);
-                if (in[y] == 1 && check.apply(y)) {
+                if (in[y] == 1 && check.test(y)) {
                     action.accept(y);
                 }
             }
         }
     }
 
-    private void findLeft(int[] in, Function<Integer, Boolean> check, IntConsumer action) {
+    private void findLeft(int[] in, Predicate<Integer> check, IntConsumer action) {
         for (int i = 0; i < in.length; i ++) {
-            if (in[i] == 1 && check.apply(i)) {
+            if (in[i] == 1 && check.test(i)) {
                 action.accept(i);
             }
         }
     }
 
     private void clean(int[] coins, Map<Integer, Set<Integer>> es, int[] in) {
-        int n = coins.length;
         Queue<Integer> q = new LinkedList<>();
         findLeft(in, x -> coins[x] != 1, q::add);
-        bfs(es, in, q, x -> coins[x] != 1, x -> q.add(x));
+        bfs(es, in, q, x -> coins[x] != 1, q::add);
     }
 
     private void cleanLeft(Map<Integer, Set<Integer>> es, int[] in) {
         Queue<Integer> q1 = new LinkedList<>();
         Queue<Integer> q2 = new LinkedList<>();
         findLeft(in, x -> true, q1::add);
-        bfs(es, in, q1, x -> true, x -> q2.add(x));
+        bfs(es, in, q1, x -> true, q2::add);
         bfs(es, in, q2, x -> true, x -> {});
     }
 }
